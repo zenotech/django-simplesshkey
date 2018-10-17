@@ -76,7 +76,7 @@ class UserKeyAdd(View):
             form.save()
             default_redirect = reverse('simplesshkey:userkey_list')
             url = request.GET.get('next', default_redirect)
-            if not is_safe_url(url=url, host=request.get_host()):
+            if not is_safe_url(url=url, allowed_hosts=(request.get_host(),)):
                 url = default_redirect
             message = 'SSH public key %s was added.' % userkey.name
             messages.success(request, message, fail_silently=True)
@@ -104,7 +104,7 @@ class UserKeyEdit(View):
             form.save()
             default_redirect = reverse('simplesshkey:userkey_list')
             url = request.GET.get('next', default_redirect)
-            if not is_safe_url(url=url, host=request.get_host()):
+            if not is_safe_url(url=url, allowed_hosts=(request.get_host(),)):
                 url = default_redirect
             message = 'SSH public key %s was saved.' % userkey.name
             messages.success(request, message, fail_silently=True)

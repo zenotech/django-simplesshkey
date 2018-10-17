@@ -74,7 +74,7 @@ class UserKeyAdd(View):
         form = self.form_class(request.POST, instance=userkey)
         if form.is_valid():
             form.save()
-            default_redirect = reverse('simplesshkey:userkey_list')
+            default_redirect = reverse(settings.USERKEY_LIST_URL)
             url = request.GET.get('next', default_redirect)
             if not is_safe_url(url=url, allowed_hosts=(request.get_host(),)):
                 url = default_redirect
@@ -102,7 +102,7 @@ class UserKeyEdit(View):
         form = self.form_class(request.POST, instance=userkey)
         if form.is_valid():
             form.save()
-            default_redirect = reverse('simplesshkey:userkey_list')
+            default_redirect = reverse(settings.USERKEY_LIST_URL)
             url = request.GET.get('next', default_redirect)
             if not is_safe_url(url=url, allowed_hosts=(request.get_host(),)):
                 url = default_redirect
@@ -132,4 +132,4 @@ def userkey_delete(request, pk):
     userkey.delete()
     message = 'SSH public key %s was deleted.' % userkey.name
     messages.success(request, message, fail_silently=True)
-    return HttpResponseRedirect(reverse('simplesshkey:userkey_list'))
+    return HttpResponseRedirect(reverse(settings.USERKEY_LIST_URL))

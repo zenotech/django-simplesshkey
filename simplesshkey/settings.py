@@ -38,3 +38,5 @@ SSHKEY_ALLOW_EDIT = getattr(
     settings, 'SSHKEY_ALLOW_EDIT', False)
 SSHKEY_DEFAULT_HASH = getattr(
     settings, 'SSHKEY_DEFAULT_HASH', 'legacy')
+
+USERKEY_LIST_URL='simplesshkey:userkey_list'

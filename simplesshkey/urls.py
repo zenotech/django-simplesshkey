@@ -39,7 +39,7 @@ from . import views
 app_name = "simplesshkey"
 urlpatterns = [
   url(r'^$', views.userkey_list, name='userkey_list'),
-  url(r'^add$', views.userkey_add, name='userkey_add'),
-  url(r'^(?P<pk>\d+)$', views.userkey_edit, name='userkey_edit'),
+  url(r'^add$', views.UserKeyAdd.as_view(), name='userkey_add'),
+  url(r'^(?P<pk>\d+)$', views.UserKeyEdit.as_view(), name='userkey_edit'),
   url(r'^(?P<pk>\d+)/delete$', views.userkey_delete, name='userkey_delete'),
 ]

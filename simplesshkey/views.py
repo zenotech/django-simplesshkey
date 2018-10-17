@@ -33,7 +33,9 @@
 from __future__ import unicode_literals
 
 from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_http_methods, require_GET
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.http import require_GET
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -55,13 +57,21 @@ def userkey_list(request):
                   )
 
 
-@login_required
-@require_http_methods(['GET', 'POST'])
-def userkey_add(request):
-    if request.method == 'POST':
+class UserKeyAdd(View):
+
+    form_class = UserKeyForm
+
+    @method_decorator(login_required)
+    def get(self, request):
+        form = self.form_class()
+        return render(request, 'sshkey/userkey_detail.html',
+                      context={'form': form, 'action': 'add'})
+
+    @method_decorator(login_required)
+    def post(self, request):
         userkey = UserKey(user=request.user)
         userkey.request = request
-        form = UserKeyForm(request.POST, instance=userkey)
+        form = self.form_class(request.POST, instance=userkey)
         if form.is_valid():
             form.save()
             default_redirect = reverse('simplesshkey:userkey_list')
@@ -71,22 +81,25 @@ def userkey_add(request):
             message = 'SSH public key %s was added.' % userkey.name
             messages.success(request, message, fail_silently=True)
             return HttpResponseRedirect(url)
-    else:
-        form = UserKeyForm()
-    return render(request, 'sshkey/userkey_detail.html',
-                  context={'form': form, 'action': 'add'})
+        return render(request, 'sshkey/userkey_detail.html',
+                      context={'form': form, 'action': 'add'})
 
 
-@login_required
-@require_http_methods(['GET', 'POST'])
-def userkey_edit(request, pk):
-    if not settings.SSHKEY_ALLOW_EDIT:
-        raise PermissionDenied
-    userkey = get_object_or_404(UserKey, pk=pk)
-    if userkey.user != request.user:
-        raise PermissionDenied
-    if request.method == 'POST':
-        form = UserKeyForm(request.POST, instance=userkey)
+class UserKeyEdit(View):
+
+    form_class = UserKeyForm
+
+    @method_decorator(login_required)
+    def get(self, request, pk):
+        userkey = self.validate_request(request, pk)
+        form = self.form_class(instance=userkey)
+        return render(request, 'sshkey/userkey_detail.html',
+                      context={'form': form, 'action': 'edit'})
+
+    @method_decorator(login_required)
+    def post(self, request, pk):
+        userkey = self.validate_request(request, pk)
+        form = self.form_class(request.POST, instance=userkey)
         if form.is_valid():
             form.save()
             default_redirect = reverse('simplesshkey:userkey_list')
@@ -96,10 +109,18 @@ def userkey_edit(request, pk):
             message = 'SSH public key %s was saved.' % userkey.name
             messages.success(request, message, fail_silently=True)
             return HttpResponseRedirect(url)
-    else:
-        form = UserKeyForm(instance=userkey)
-    return render(request, 'sshkey/userkey_detail.html',
-                  context={'form': form, 'action': 'edit'})
+        return render(request, 'sshkey/userkey_detail.html',
+                      context={'form': form, 'action': 'edit'})
+
+    @staticmethod
+    def validate_request(request, pk):
+        if not settings.SSHKEY_ALLOW_EDIT:
+            raise PermissionDenied
+        userkey = get_object_or_404(UserKey, pk=pk)
+        if userkey.user != request.user:
+            raise PermissionDenied
+        return userkey
+
 
 
 @login_required

@@ -1,4 +1,4 @@
-<h1>My Keys</h1>
+<h1 xmlns:simplesshkey="http://www.w3.org/1999/xhtml" xmlns:simplesshkey="http://www.w3.org/1999/xhtml">My Keys</h1>
 {% if messages %}
 <ul class="messages">
   {% for message in messages %}
@@ -29,7 +29,10 @@
     {% if allow_edit %}
     <a href="{% url "simplesshkey:userkey_edit" userkey.pk %}">Edit</a>
     {% endif %}
-    <a href="{% url "simplesshkey:userkey_delete" userkey.pk %}">Delete</a>
+      <form method="post" action="{% url "simplesshkey:userkey_delete" userkey.pk %}">
+        {% csrf_token %}
+        <button type="submit" >Delete</button>
+      </form>
     </td>
   </tr>
 {% endfor %}

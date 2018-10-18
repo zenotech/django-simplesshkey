@@ -35,7 +35,7 @@ from __future__ import unicode_literals
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -124,7 +124,7 @@ class UserKeyEdit(View):
 
 
 @login_required
-@require_GET
+@require_POST
 def userkey_delete(request, pk):
     userkey = get_object_or_404(UserKey, pk=pk)
     if userkey.user != request.user:
